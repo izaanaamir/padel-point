@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+sqlmodel
+psycopg2-binary
+python-dotenv
+passlib[argon2]
+python-jose[cryptography]
+jinja2
+python-multipart
