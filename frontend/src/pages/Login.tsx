@@ -5,8 +5,8 @@ import { useAuth } from '../hooks/useAuth'
 export default function LoginPage() {
   const { login } = useAuth()
   const nav = useNavigate()
-  const [username, setUsername] = useState('employee1')
-  const [password, setPassword] = useState('employeepass')
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
