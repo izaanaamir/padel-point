@@ -1,6 +1,6 @@
 import axios, { AxiosInstance } from 'axios'
 
-const BASE = 'http://localhost:8000'
+const BASE = 'https://padel-point.onrender.com'
 
 class Api {
   private instance: AxiosInstance
