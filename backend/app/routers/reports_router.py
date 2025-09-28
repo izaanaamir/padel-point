@@ -6,6 +6,7 @@ from app.auth import get_current_user
 from datetime import datetime, date, timedelta
 from collections import defaultdict
 from typing import Optional
+import pytz
 
 router = APIRouter()
 
@@ -40,6 +41,7 @@ def generate_report(
     bookings = session.exec(q).all()
 
     if not user.role == "admin":
+        bookings = [b for b in bookings if b.status == "active"]
         return {
             "start_date": start_date,
             "end_date": end_date,
@@ -85,7 +87,67 @@ def generate_report(
                 "end_time": b.end_time.isoformat(),
                 "price": b.price,
                 "paid": b.paid,
+                "status": b.status,
             }
             for b in bookings
         ],
     }
+
+@router.get("/stats")
+def get_dashboard_stats(
+    session: Session = Depends(get_session),
+    user: User = Depends(get_current_user),
+):
+    # Get Pakistan timezone
+    pakistan_tz = pytz.timezone("Asia/Karachi")
+    now_utc = datetime.utcnow().replace(tzinfo=pytz.UTC)
+    now_pakistan = now_utc.astimezone(pakistan_tz)
+
+    # Today's date range in Pakistan time
+    today_start = now_pakistan.replace(hour=0, minute=0, second=0, microsecond=0)
+    today_end = now_pakistan.replace(hour=23, minute=59, second=59, microsecond=999999)
+
+    # Week range (last 7 days including today)
+    week_start = today_start - timedelta(days=6)
+
+    # Convert to UTC for database queries
+    today_start_utc = today_start.astimezone(pytz.UTC).replace(tzinfo=None)
+    today_end_utc = today_end.astimezone(pytz.UTC).replace(tzinfo=None)
+    week_start_utc = week_start.astimezone(pytz.UTC).replace(tzinfo=None)
+
+    # Get today's active bookings
+    daily_bookings = session.exec(
+        select(Booking).where(
+            Booking.start_time >= today_start_utc,
+            Booking.start_time <= today_end_utc,
+            Booking.status == "active",
+        )
+    ).all()
+
+    # Get week's active bookings
+    weekly_bookings = session.exec(
+        select(Booking).where(
+            Booking.start_time >= week_start_utc,
+            Booking.start_time <= today_end_utc,
+            Booking.status == "active",
+        )
+    ).all()
+
+    # Calculate stats
+    daily_count = len(daily_bookings)
+    weekly_count = len(weekly_bookings)
+
+    if user.role == "admin":
+        daily_revenue = sum(b.price for b in daily_bookings if b.paid)
+        weekly_revenue = sum(b.price for b in weekly_bookings if b.paid)
+    else:
+        daily_revenue = 0
+        weekly_revenue = 0
+
+    return {
+        "daily_bookings": daily_count,
+        "daily_revenue": daily_revenue,
+        "weekly_bookings": weekly_count,
+        "weekly_revenue": weekly_revenue,
+    }
+
