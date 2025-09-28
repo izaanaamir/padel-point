@@ -31,6 +31,7 @@ class Booking(SQLModel, table=True):
     notes: Optional[str] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
     receipt_path: Optional[str] = None
+    status: str = Field(default="active")
 
     court: Optional[Court] = Relationship(back_populates="bookings")
     employee: Optional[User] = Relationship(back_populates="bookings")
