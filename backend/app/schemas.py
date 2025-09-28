@@ -21,6 +21,7 @@ class BookingCreate(SQLModel):
     price: float
     paid: Optional[bool] = False
     notes: Optional[str] = None
+    status: str = "active"
 
 
 class BookingUpdate(SQLModel):
