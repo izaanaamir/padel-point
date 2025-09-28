@@ -23,7 +23,8 @@ def booking_overlaps(
     exclude_booking_id: Optional[int] = None,
 ) -> bool:
     q = select(Booking).where(
-        Booking.court_id == court_id, Booking.end_time > start, Booking.start_time < end
+        Booking.court_id == court_id, Booking.end_time > start, Booking.start_time < end,
+        Booking.status == "active",
     )
     if exclude_booking_id:
         q = q.where(Booking.id != exclude_booking_id)
