@@ -111,6 +111,7 @@ def delete_booking(
     b = session.get(Booking, booking_id)
     if not b:
         raise HTTPException(status_code=404, detail="Booking not found")
-    session.delete(b)
+    b.status = "deleted"
+    session.add(b)
     session.commit()
     return {"ok": True}
