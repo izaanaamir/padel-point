@@ -34,7 +34,7 @@ export default function BookingPage() {
   // Generate time slots in 30-minute increments
   const generateTimeSlots = () => {
     const slots = []
-    for (let hour = 6; hour <= 23; hour++) {
+    for (let hour = 0; hour <= 23; hour++) {
       for (let minute = 0; minute < 60; minute += 30) {
         const time = setMinutes(setHours(new Date(), hour), minute)
         const timeString = format(time, 'HH:mm')
@@ -48,7 +48,7 @@ export default function BookingPage() {
   const generateEndTimeSlots = () => {
     const slots = []
     // Current day slots (from selected start time onwards)
-    for (let hour = 6; hour <= 23; hour++) {
+    for (let hour = 0; hour <= 23; hour++) {
       for (let minute = 0; minute < 60; minute += 30) {
         const time = setMinutes(setHours(new Date(), hour), minute)
         const timeString = format(time, 'HH:mm')
